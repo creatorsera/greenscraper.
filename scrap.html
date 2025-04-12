@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GreenScraper</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+
+        body {
+            background: #18230F;
+            color: #fff;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        header {
+            background: #1F7D53;
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        header .logo {
+            font-size: 24px;
+            font-weight: 600;
+        }
+
+        nav a {
+            color: #fff;
+            text-decoration: none;
+            margin-left: 20px;
+            font-size: 16px;
+            opacity: 0.8;
+            transition: opacity 0.2s;
+        }
+
+        nav a:hover {
+            opacity: 1;
+        }
+
+        main {
+            flex: 1;
+            max-width: 800px;
+            margin: 40px auto;
+            padding: 0 20px;
+        }
+
+        .scraper-section {
+            background: #27391C;
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+            transition: all 0.3s ease;
+        }
+
+        .scraper-section.minimized {
+            padding: 15px;
+        }
+
+        .scraper-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .scraper-header h1 {
+            font-size: 22px;
+            font-weight: 500;
+        }
+
+        .toggle-btn {
+            background: none;
+            border: none;
+            color: #fff;
+            font-size: 18px;
+            cursor: pointer;
+            padding: 5px 10px;
+            opacity: 0.8;
+        }
+
+        .toggle-btn:hover {
+            opacity: 1;
+        }
+
+        .scraper-content {
+            display: block;
+        }
+
+        .scraper-section.minimized .scraper-content {
+            display: none;
+        }
+
+        .input-group {
+            margin-bottom: 25px;
+        }
+
+        .input-group label {
+            display: block;
+            font-size: 14px;
+            margin-bottom: 8px;
+            color: #ffffffcc;
+        }
+
+        textarea, input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #255F38;
+            background: #18230F;
+            color: #fff;
+            border-radius: 8px;
+            font-size: 14px;
+            resize: vertical;
+        }
+
+        textarea {
+            height: 100px;
+        }
+
+        input[type="number"] {
+            appearance: textfield;
+        }
+
+        input::-webkit-outer-spin-button,
+        input::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+        }
+
+        .progress-bar {
+            height: 8px;
+            background: #18230F;
+            border-radius: 4px;
+            margin: 20px 0;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            width: 0;
+            background: #255F38;
+            border-radius: 4px;
+            transition: width 0.3s ease;
+        }
+
+        .status {
+            text-align: center;
+            font-size: 14px;
+            color: #ffffff99;
+            margin-bottom: 20px;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 15px;
+        }
+
+        .button-group button {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            color: #fff;
+            background: #255F38;
+            transition: background 0.2s;
+        }
+
+        .start-btn {
+            background: #1F7D53;
+        }
+
+        .download-btn {
+            background: #1F7D53;
+        }
+
+        .button-group button:disabled {
+            background: #18230F;
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .button-group button:hover:not(:disabled) {
+            background: #2a7047;
+        }
+
+        footer {
+            background: #27391C;
+            padding: 15px;
+            text-align: center;
+            color: #ffffff99;
+            font-size: 14px;
+        }
+
+        @media (max-width: 600px) {
+            main {
+                margin: 20px auto;
+                padding: 0 15px;
+            }
+
+            .scraper-section {
+                padding: 20px;
+            }
+
+            header .logo {
+                font-size: 20px;
+            }
+
+            nav a {
+                font-size: 14px;
+                margin-left: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo">GreenScraper</div>
+        <nav>
+            <a href="#scraper">Scraper</a>
+            <a href="#about">About</a>
+        </nav>
+    </header>
+    <main>
+        <section class="scraper-section" id="scraper">
+            <div class="scraper-header">
+                <h1>Web Scraper</h1>
+                <button class="toggle-btn">−</button>
+            </div>
+            <div class="scraper-content">
+                <div class="input-group">
+                    <label for="urls">URLs (one per line)</label>
+                    <textarea id="urls" placeholder="Enter URLs"></textarea>
+                </div>
+                <div class="input-group">
+                    <label for="selectors">Selectors (CSS or /regex/)</label>
+                    <textarea id="selectors" placeholder="Enter selectors"></textarea>
+                </div>
+                <div class="input-group">
+                    <label for="delay">Delay (ms)</label>
+                    <input type="number" id="delay" value="3000" min="1000" max="10000" step="500">
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill"></div>
+                </div>
+                <div class="status">Idle - <span class="processed">0/0</span> (<span class="percentage">0%</span>)</div>
+                <div class="button-group">
+                    <button class="start-btn">Start</button>
+                    <button class="stop-btn" disabled>Stop</button>
+                    <button class="download-btn" disabled>Download CSV</button>
+                </div>
+            </div>
+        </section>
+        <section id="about" style="margin-top: 40px; color: #ffffffcc;">
+            <h2 style="font-size: 20px; margin-bottom: 20px;">About GreenScraper</h2>
+            <p style="font-size: 14px; line-height: 1.6;">
+                GreenScraper is a simple tool to extract data from websites using CSS selectors or regular expressions.
+                Enter URLs and selectors, set a delay, and download the results as a CSV file.
+            </p>
+        </section>
+    </main>
+    <footer>
+        &copy; 2025 GreenScraper
+    </footer>
+
+    <script>
+        // Utility to validate URLs
+        const isValidUrl = (url) => {
+            try {
+                new URL(url);
+                return true;
+            } catch {
+                return false;
+            }
+        };
+
+        // Setup scraper
+        const setupScraper = () => {
+            const section = document.querySelector('.scraper-section');
+            const toggleBtn = section.querySelector('.toggle-btn');
+            const startBtn = section.querySelector('.start-btn');
+            const stopBtn = section.querySelector('.stop-btn');
+            const downloadBtn = section.querySelector('.download-btn');
+            const urlInput = section.querySelector('#urls');
+            const selectorInput = section.querySelector('#selectors');
+            const delayInput = section.querySelector('#delay');
+            const progressFill = section.querySelector('.progress-fill');
+            const processedSpan = section.querySelector('.processed');
+            const percentageSpan = section.querySelector('.percentage');
+            const status = section.querySelector('.status');
+
+            let results = [];
+            let stopScraping = false;
+
+            // Toggle minimize
+            toggleBtn.addEventListener('click', () => {
+                section.classList.toggle('minimized');
+                toggleBtn.textContent = section.classList.contains('minimized') ? '+' : '−';
+            });
+
+            // Scrape function
+            const scrape = async (urls, selectors, delay) => {
+                const totalUrls = urls.length;
+                let processed = 0;
+                results = [];
+
+                for (const url of urls) {
+                    if (stopScraping) break;
+                    try {
+                        const response = await fetch(`https://cors-anywhere.herokuapp.com/${url}`, {
+                            headers: { 'X-Requested-With': 'XMLHttpRequest' }
+                        });
+                        const text = await response.text();
+                        const parser = new DOMParser();
+                        const doc = parser.parseFromString(text, 'text/html');
+                        const rowData = { URL: url };
+
+                        for (const selector of selectors) {
+                            if (selector.startsWith('/') && selector.endsWith('/')) {
+                                const regex = new RegExp(selector.slice(1, -1));
+                                rowData[selector] = text.match(regex)?.[0] || 'N/A';
+                            } else {
+                                rowData[selector] = doc.querySelector(selector)?.textContent.trim() || 'N/A';
+                            }
+                        }
+                        results.push(rowData);
+                    } catch (error) {
+                        console.error(`Error scraping ${url}:`, error);
+                    }
+                    processed++;
+                    const percentage = Math.round((processed / totalUrls) * 100);
+                    progressFill.style.width = `${percentage}%`;
+                    processedSpan.textContent = `${processed}/${totalUrls}`;
+                    percentageSpan.textContent = `${percentage}%`;
+                    status.textContent = 'Scraping...';
+                    await new Promise(resolve => setTimeout(resolve, delay));
+                }
+                return results;
+            };
+
+            // Start scraping
+            startBtn.addEventListener('click', async () => {
+                const urls = urlInput.value.split('\n').filter(url => url.trim() && isValidUrl(url.trim()));
+                const selectors = selectorInput.value.split('\n').filter(selector => selector.trim());
+                const delay = parseInt(delayInput.value) || 3000;
+
+                if (!urls.length || !selectors.length) {
+                    alert('Please enter valid URLs and selectors');
+                    return;
+                }
+
+                startBtn.disabled = true;
+                stopBtn.disabled = false;
+                downloadBtn.disabled = true;
+                stopScraping = false;
+
+                await scrape(urls, selectors, delay);
+
+                startBtn.disabled = false;
+                stopBtn.disabled = true;
+                downloadBtn.disabled = !results.length;
+                status.textContent = 'Idle';
+            });
+
+            // Stop scraping
+            stopBtn.addEventListener('click', () => {
+                stopScraping = true;
+                stopBtn.disabled = true;
+                startBtn.disabled = false;
+                status.textContent = 'Stopped';
+            });
+
+            // Download CSV
+            downloadBtn.addEventListener('click', () => {
+                const headers = ['URL', ...selectorInput.value.split('\n').filter(s => s.trim())];
+                const csv = [
+                    headers.join(','),
+                    ...results.map(row => headers.map(h => `"${(row[h] || '').replace(/"/g, '""')}"`).join(','))
+                ].join('\n');
+                const blob = new Blob([csv], { type: 'text/csv' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `scraped-${Date.now()}.csv`;
+                a.click();
+                URL.revokeObjectURL(url);
+            });
+
+            // Persist inputs
+            urlInput.addEventListener('input', () => localStorage.setItem('scraperUrls', urlInput.value));
+            selectorInput.addEventListener('input', () => localStorage.setItem('scraperSelectors', selectorInput.value));
+            delayInput.addEventListener('input', () => localStorage.setItem('scraperDelay', delayInput.value));
+
+            // Load saved inputs
+            urlInput.value = localStorage.getItem('scraperUrls') || '';
+            selectorInput.value = localStorage.getItem('scraperSelectors') || '';
+            delayInput.value = localStorage.getItem('scraperDelay') || '3000';
+        };
+
+        // Initialize
+        setupScraper();
+    </script>
+</body>
+</html>
