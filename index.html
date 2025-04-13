@@ -3,201 +3,205 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sitemap URL Extractor</title>
+    <title>Multi-Tool Web App</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            font-family: 'Segoe UI', system-ui, sans-serif;
         }
 
         body {
-            background-color: #18230F;
-            color: #E0E0E0;
-            line-height: 1.6;
+            background-color: #1a1a1a;
+            color: #ffffff;
             min-height: 100vh;
-            padding: 20px;
+            padding: 2rem;
         }
 
         .container {
-            max-width: 900px;
+            max-width: 1200px;
             margin: 0 auto;
-            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 2rem;
         }
 
         h1 {
-            text-align: center;
-            color: #255F38;
-            margin-bottom: 20px;
-            font-size: 2.2em;
-            font-weight: 600;
+            font-size: 2.5rem;
+            background: linear-gradient(45deg, #646cff, #a855f7);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
         }
 
-        .tab {
-            margin-bottom: 10px;
-            border-radius: 8px;
-            overflow: hidden;
-            background: #27391C;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
-        }
-
-        .tab-header {
-            padding: 15px 20px;
-            background: linear-gradient(90deg, #255F38, #1F7D53);
-            color: #E0E0E0;
-            font-weight: 500;
-            cursor: pointer;
+        .tab-nav {
             display: flex;
-            justify-content: space-between;
-            align-items: center;
-            transition: background 0.3s;
+            border-bottom: 2px solid #404040;
+            margin-bottom: 2rem;
+            overflow-x: auto;
         }
 
-        .tab-header:hover {
-            background: linear-gradient(90deg, #1F7D53, #255F38);
+        .tab-button {
+            padding: 1rem 1.5rem;
+            background: #2d2d2d;
+            color: #ffffff;
+            border: none;
+            border-radius: 8px 8px 0 0;
+            margin-right: 5px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 500;
+            transition: background 0.3s, color 0.3s;
+        }
+
+        .tab-button:hover {
+            background: #646cff;
+        }
+
+        .tab-button.active {
+            background: linear-gradient(90deg, #646cff, #747bff);
+            color: #ffffff;
+            position: relative;
+        }
+
+        .tab-button.active::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: #646cff;
         }
 
         .tab-content {
-            padding: 20px;
             display: none;
-            background: #27391C;
+            background: #2d2d2d;
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
         }
 
         .tab-content.active {
             display: block;
         }
 
+        .section {
+            margin-bottom: 2rem;
+        }
+
+        h2 {
+            color: #ffffff;
+            margin-bottom: 1rem;
+            font-size: 1.5rem;
+        }
+
         .input-section {
             display: flex;
             flex-direction: column;
-            gap: 15px;
+            gap: 1rem;
         }
 
-        textarea {
+        textarea, input[type="text"], select {
             width: 100%;
-            padding: 12px;
-            border: 2px solid #1F7D53;
+            padding: 0.75rem;
+            border: 2px solid #404040;
             border-radius: 8px;
-            resize: vertical;
-            font-size: 1em;
-            background: #18230F;
-            color: #E0E0E0;
+            font-size: 1rem;
+            background: #252525;
+            color: #ffffff;
             transition: border-color 0.3s;
         }
 
-        textarea:focus {
+        textarea:focus, input[type="text"]:focus, select:focus {
             outline: none;
-            border-color: #255F38;
+            border-color: #646cff;
         }
 
         .button-group {
             display: flex;
-            gap: 10px;
+            gap: 1rem;
+            flex-wrap: wrap;
         }
 
         button {
-            padding: 12px 24px;
-            background: linear-gradient(90deg, #255F38, #1F7D53);
-            color: #E0E0E0;
+            padding: 0.75rem 1.5rem;
+            background: linear-gradient(90deg, #646cff, #747bff);
+            color: #ffffff;
             border: none;
             border-radius: 8px;
             cursor: pointer;
-            font-size: 1em;
+            font-size: 1rem;
             font-weight: 500;
             transition: transform 0.2s, box-shadow 0.3s;
         }
 
         button:hover {
             transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(37, 95, 56, 0.4);
+            box-shadow: 0 4px 12px rgba(100, 108, 255, 0.4);
         }
 
-        button:active {
-            transform: translateY(0);
+        button:disabled {
+            background: #555;
+            cursor: not-allowed;
         }
 
-        #results {
-            max-height: 300px;
-            overflow-y: auto;
-            padding-right: 10px;
+        .secondary-btn {
+            background: #404040;
         }
 
-        .result-item {
-            padding: 10px;
-            margin-bottom: 10px;
-            background: #18230F;
-            border-radius: 6px;
-        }
-
-        .error {
-            color: #FF6B6B;
-            background: #3A1C1C;
-            padding: 10px;
-            border-radius: 6px;
-            margin-bottom: 10px;
+        .secondary-btn:hover {
+            background: #505050;
+            transform: translateY(-2px);
         }
 
         .progress-container {
-            margin-top: 20px;
-            background: #18230F;
+            margin-top: 1rem;
+            background: #252525;
             border-radius: 8px;
             overflow: hidden;
             height: 20px;
-            position: relative;
         }
 
         .progress-bar {
             height: 100%;
-            background: linear-gradient(90deg, #255F38, #1F7D53);
+            background: linear-gradient(90deg, #646cff, #747bff);
             width: 0;
             transition: width 0.3s ease;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .progress-bar::after {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: linear-gradient(
-                45deg,
-                rgba(255, 255, 255, 0.1) 25%,
-                transparent 25%,
-                transparent 50%,
-                rgba(255, 255, 255, 0.1) 50%,
-                rgba(255, 255, 255, 0.1) 75%,
-                transparent 75%,
-                transparent
-            );
-            background-size: 20px 20px;
-            animation: move 2s linear infinite;
-        }
-
-        @keyframes move {
-            0% { background-position: 0 0; }
-            100% { background-position: 20px 20px; }
         }
 
         .progress-text {
-            margin-top: 10px;
-            font-size: 0.9em;
-            color: #E0E0E0;
+            margin-top: 0.5rem;
+            font-size: 0.9rem;
+            color: #ffffff;
             text-align: center;
+        }
+
+        .result-item, .error {
+            padding: 0.75rem;
+            margin-bottom: 0.5rem;
+            background: #252525;
+            border-radius: 6px;
+        }
+
+        .error {
+            color: #ff6b6b;
+            background: #3a1c1c;
         }
 
         .loader {
             display: none;
-            border: 4px solid #27391C;
-            border-top: 4px solid #255F38;
+            border: 4px solid #404040;
+            border-top: 4px solid #646cff;
             border-radius: 50%;
             width: 30px;
             height: 30px;
             animation: spin 1s linear infinite;
-            margin: 20px auto;
+            margin: 1rem auto;
         }
 
         @keyframes spin {
@@ -205,110 +209,389 @@
             100% { transform: rotate(360deg); }
         }
 
+        .filter-container {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .file-upload {
+            padding: 0.75rem 1.5rem;
+            background: linear-gradient(90deg, #646cff, #747bff);
+            border-radius: 8px;
+            cursor: pointer;
+            display: inline-block;
+        }
+
+        input[type="file"] {
+            display: none;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+            background: #252525;
+        }
+
+        th, td {
+            padding: 0.75rem;
+            text-align: left;
+            border-bottom: 1px solid #404040;
+        }
+
+        th {
+            background: #2d2d2d;
+            position: sticky;
+            top: 0;
+            font-weight: 500;
+        }
+
+        tr:hover {
+            background: #363636;
+        }
+
+        .pagination {
+            display: flex;
+            justify-content: center;
+            margin-top: 1rem;
+            gap: 0.5rem;
+        }
+
+        .pagination button {
+            min-width: 40px;
+        }
+
+        .status {
+            margin: 0.5rem 0;
+            color: #aaa;
+            font-size: 0.9rem;
+        }
+
+        .column-selector {
+            margin: 0.5rem 0;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+
+        .column-selector label {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .drop-zone {
+            border: 2px dashed #404040;
+            border-radius: 8px;
+            padding: 2rem;
+            text-align: center;
+            transition: all 0.3s ease;
+            background: #252525;
+            margin-bottom: 1rem;
+        }
+
+        .drop-zone.active {
+            border-color: #646cff;
+            background: #363636;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 1rem;
+        }
+
+        .card {
+            background: #252525;
+            border-radius: 8px;
+            padding: 1rem;
+            border: 1px solid #404040;
+            transition: transform 0.2s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-4px);
+        }
+
+        .preview-img {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            border-radius: 0.5rem;
+            margin-bottom: 0.5rem;
+            background: #1a1a1a;
+        }
+
+        .card-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .filename {
+            font-size: 0.9rem;
+            color: #aaa;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .status-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #404040;
+        }
+
+        .status-dot.converted {
+            background: #22c55e;
+        }
+
+        .download-btn {
+            background: none;
+            color: #646cff;
+            padding: 0;
+            text-decoration: underline;
+        }
+
+        .download-btn:hover {
+            color: #747bff;
+            transform: none;
+        }
+
+        .progress-bar {
+            height: 4px;
+            background: rgba(100, 108, 255, 0.1);
+            border-radius: 2px;
+            margin: 0.5rem 0;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: #646cff;
+            width: 0;
+            transition: width 0.3s ease;
+        }
+
+        .file-list {
+            margin-top: 1rem;
+            background: #252525;
+            border-radius: 6px;
+            padding: 1rem;
+        }
+
+        .file-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.5rem;
+            background: #363636;
+            margin-bottom: 0.5rem;
+            border-radius: 4px;
+        }
+
         @media (max-width: 600px) {
             .container {
-                padding: 15px;
+                padding: 1rem;
             }
 
             h1 {
-                font-size: 1.8em;
+                font-size: 1.8rem;
+            }
+
+            .button-group {
+                flex-direction: column;
             }
 
             button {
                 width: 100%;
             }
 
-            .button-group {
-                flex-direction: column;
+            .tab-button {
+                padding: 0.75rem 1rem;
+                font-size: 0.9rem;
             }
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>Sitemap URL Extractor</h1>
-
-        <div class="tab">
-            <div class="tab-header" onclick="toggleTab('input-tab')">
-                <span>Input URLs</span>
-                <span>▼</span>
-            </div>
-            <div class="tab-content active" id="input-tab">
+        <div class="header">
+            <h1>Multi-Tool Web App</h1>
+            <p>Powerful tools for sitemap extraction, link filtering, image conversion, and CSV merging</p>
+        </div>
+        <div class="tab-nav">
+            <button class="tab-button active" data-tab="sitemap-tab">Sitemap Extractor</button>
+            <button class="tab-button" data-tab="link-filter-tab">Link Filter</button>
+            <button class="tab-button" data-tab="webp-tab">NeoWebP Converter</button>
+            <button class="tab-button" data-tab="csv-merge-tab">CSV Merger</button>
+        </div>
+        <!-- Sitemap Extractor Tab -->
+        <div class="tab-content active" id="sitemap-tab">
+            <div class="section">
+                <h2>Sitemap Input</h2>
                 <div class="input-section">
                     <textarea id="sitemapUrls" rows="5" placeholder="Enter up to 100 sitemap URLs (one per line, e.g., https://example.com/sitemap.xml)"></textarea>
                     <div class="button-group">
                         <button onclick="extractUrls()">Start Extraction</button>
                         <button onclick="resumeExtraction()" id="resumeButton" disabled>Resume Extraction</button>
-                        <button onclick="clearData()">Clear Data</button>
+                        <button class="secondary-btn" onclick="clearSitemapData()">Clear Data</button>
                     </div>
                 </div>
             </div>
-        </div>
-
-        <div class="tab">
-            <div class="tab-header" onclick="toggleTab('progress-tab')">
-                <span>Progress</span>
-                <span>▼</span>
-            </div>
-            <div class="tab-content" id="progress-tab">
+            <div class="section">
+                <h2>Sitemap Progress</h2>
                 <div class="progress-container">
                     <div class="progress-bar" id="progressBar"></div>
                 </div>
                 <div class="progress-text" id="progressText">0% Complete (0/0 URLs processed)</div>
                 <div id="loader" class="loader"></div>
             </div>
-        </div>
-
-        <div class="tab">
-            <div class="tab-header" onclick="toggleTab('results-tab')">
-                <span>Results</span>
-                <span>▼</span>
+            <div class="section">
+                <h2>Sitemap Results</h2>
+                <div id="sitemapResults"></div>
             </div>
-            <div class="tab-content" id="results-tab">
-                <div id="results"></div>
+        </div>
+        <!-- Link Filter Tab -->
+        <div class="tab-content" id="link-filter-tab">
+            <div class="input-section">
+                <h2>Upload CSV File</h2>
+                <label for="csvFile" class="file-upload">Choose CSV File</label>
+                <input type="file" id="csvFile" accept=".csv">
+                <div class="status" id="fileStatus">No file selected</div>
+                <div id="loadingIndicator" class="loader"></div>
+            </div>
+            <div class="input-section">
+                <h2>Filter Links</h2>
+                <div class="filter-container">
+                    <input type="text" id="filterKeyword" placeholder="Enter keywords (e.g., keyword1 keyword2)">
+                    <select id="logicOperator">
+                        <option value="AND">AND</option>
+                        <option value="OR">OR</option>
+                    </select>
+                    <label><input type="checkbox" id="regexToggle"> Use Regex</label>
+                    <button id="filterButton">Filter</button>
+                    <button class="secondary-btn" id="resetButton">Reset</button>
+                </div>
+                <div class="column-selector" id="columnSelector"></div>
+                <div class="status" id="resultsStatus"></div>
+            </div>
+            <div style="overflow-x: auto;">
+                <table id="resultsTable">
+                    <thead><tr></tr></thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+            <div class="pagination" id="pagination"></div>
+            <div class="button-group">
+                <button id="downloadButton" disabled>Download Filtered CSV</button>
+                <button id="downloadSelectedButton" disabled>Download Selected Rows</button>
+            </div>
+        </div>
+        <!-- NeoWebP Converter Tab -->
+        <div class="tab-content" id="webp-tab">
+            <div class="section">
+                <h2>NeoWebP Converter</h2>
+                <div class="drop-zone" id="dropZone">
+                    📁 Drag & Drop Images or 
+                    <input type="file" id="fileInput" multiple accept="image/*">
+                    <label for="fileInput" style="color: #646cff; cursor: pointer;">Browse Files</label>
+                </div>
+                <div class="button-group">
+                    <button onclick="convertAll()" id="convertButton">🚀 Convert All</button>
+                    <button onclick="downloadZip()" id="zipButton" disabled>📦 Download All as ZIP</button>
+                </div>
+            </div>
+            <div class="grid" id="previewGrid"></div>
+        </div>
+        <!-- CSV Merger Tab -->
+        <div class="tab-content" id="csv-merge-tab">
+            <div class="section">
+                <h2>CSV Merger</h2>
+                <div class="drop-zone" id="csvDropZone">
+                    <label class="upload-label" for="csvFileInput">
+                        <h3>Drag & Drop CSV Files</h3>
+                        <p>or click to browse</p>
+                    </label>
+                    <input type="file" id="csvFileInput" multiple accept=".csv">
+                </div>
+                <div class="button-group">
+                    <button class="secondary-btn" onclick="clearCsvFiles()">Clear All</button>
+                    <button onclick="mergeCsvFiles()">Merge CSV Files</button>
+                </div>
+                <div class="file-list" id="csvFileList"></div>
             </div>
         </div>
     </div>
 
     <script>
+        // Shared Tab Management
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+            document.querySelectorAll('.tab-button').forEach(button => button.classList.remove('active'));
+            const tabContent = document.getElementById(tabId);
+            if (tabContent) {
+                tabContent.classList.add('active');
+                document.querySelector(`.tab-button[data-tab="${tabId}"]`).classList.add('active');
+            } else {
+                console.error(`Tab content with ID ${tabId} not found`);
+            }
+        }
+
+        document.querySelectorAll('.tab-button').forEach(button => {
+            button.addEventListener('click', () => switchTab(button.dataset.tab));
+        });
+
+        // Sitemap Extractor
+        let sitemapState = loadSitemapState();
         const PROXY_URLS = [
             'https://api.allorigins.win/raw?url=',
             'https://corsproxy.io/?'
         ];
 
-        // Load saved data
-        let state = loadState();
-        if (state.urls) {
-            document.getElementById('sitemapUrls').value = state.urls.join('\n');
-            updateResults(state.results);
-            updateProgress(state.processedCount, state.totalUrls);
-            if (state.isProcessing) {
-                document.getElementById('resumeButton').disabled = false;
+        function loadSitemapState() {
+            try {
+                return JSON.parse(localStorage.getItem('sitemapExtractorState')) || {};
+            } catch (e) {
+                console.error('Error loading sitemap state:', e);
+                return {};
             }
         }
 
-        function toggleTab(tabId) {
-            const content = document.getElementById(tabId);
-            const isActive = content.classList.contains('active');
-            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
-            if (!isActive) {
-                content.classList.add('active');
+        function saveSitemapState() {
+            try {
+                localStorage.setItem('sitemapExtractorState', JSON.stringify(sitemapState));
+            } catch (e) {
+                console.error('Error saving sitemap state:', e);
+            }
+        }
+
+        if (sitemapState.urls) {
+            document.getElementById('sitemapUrls').value = sitemapState.urls.join('\n');
+            updateSitemapResults(sitemapState.results);
+            updateProgress(sitemapState.processedCount, sitemapState.totalUrls);
+            if (sitemapState.isProcessing) {
+                document.getElementById('resumeButton').disabled = false;
             }
         }
 
         async function extractUrls() {
             const textarea = document.getElementById('sitemapUrls');
-            const resultsDiv = document.getElementById('results');
+            const resultsDiv = document.getElementById('sitemapResults');
             const loader = document.getElementById('loader');
-            const rawUrls = textarea.value.trim().split('\n').filter(url => url.trim() !== '').slice(0, 100);
+            if (!textarea || !resultsDiv || !loader) return;
 
-            if (rawUrls.length === 0) {
+            const rawUrls = textarea.value.trim().split('\n').filter(url => url.trim()).slice(0, 100);
+            if (!rawUrls.length) {
                 resultsDiv.innerHTML = '<div class="error">Please enter at least one sitemap URL.</div>';
                 return;
             }
 
-            // Initialize state
-            state = {
+            sitemapState = {
                 urls: rawUrls,
                 results: [],
                 csvData: [['Sitemap URL', 'Extracted URL']],
@@ -316,7 +599,7 @@
                 totalUrls: rawUrls.length,
                 isProcessing: true
             };
-            saveState();
+            saveSitemapState();
             resultsDiv.innerHTML = '';
             loader.style.display = 'block';
             document.getElementById('resumeButton').disabled = false;
@@ -325,91 +608,89 @@
         }
 
         async function resumeExtraction() {
-            if (!state.isProcessing) return;
+            if (!sitemapState.isProcessing) return;
+            const resultsDiv = document.getElementById('sitemapResults');
+            const loader = document.getElementById('loader');
+            if (!resultsDiv || !loader) return;
 
-            const resultsDiv = document.getElementById('results');
             resultsDiv.innerHTML = '';
-            document.getElementById('loader').style.display = 'block';
-            updateResults(state.results);
-
-            await processUrls(state.urls, state.processedCount);
+            loader.style.display = 'block';
+            updateSitemapResults(sitemapState.results);
+            await processUrls(sitemapState.urls, sitemapState.processedCount);
         }
 
         async function processUrls(urls, startIndex) {
-            const resultsDiv = document.getElementById('results');
+            const resultsDiv = document.getElementById('sitemapResults');
             const loader = document.getElementById('loader');
+            if (!resultsDiv || !loader) return;
 
             for (let i = startIndex; i < urls.length; i++) {
                 const rawUrl = urls[i];
                 try {
-                    const url = normalizeUrl(rawUrl);
+                    const url = normalizeSitemapUrl(rawUrl);
                     const pageUrls = await fetchAllSitemapUrls(url);
-                    pageUrls.forEach(pageUrl => {
-                        state.csvData.push([url, pageUrl]);
-                    });
+                    pageUrls.forEach(pageUrl => sitemapState.csvData.push([url, pageUrl]));
                     const result = `<div class="result-item">Extracted ${pageUrls.length} URLs from ${url}</div>`;
-                    state.results.push(result);
+                    sitemapState.results.push(result);
                     resultsDiv.innerHTML += result;
                 } catch (error) {
                     const errorMsg = `<div class="error">Error processing ${rawUrl}: ${error.message}</div>`;
-                    state.results.push(errorMsg);
+                    sitemapState.results.push(errorMsg);
                     resultsDiv.innerHTML += errorMsg;
                 }
 
-                state.processedCount = i + 1;
-                updateProgress(state.processedCount, state.totalUrls);
-                saveState();
-
-                // Yield to prevent blocking
+                sitemapState.processedCount = i + 1;
+                updateProgress(sitemapState.processedCount, sitemapState.totalUrls);
+                saveSitemapState();
                 await new Promise(resolve => setTimeout(resolve, 0));
             }
 
-            if (state.csvData.length > 1) {
-                downloadCsv(state.csvData);
+            if (sitemapState.csvData.length > 1) {
+                downloadCsv(sitemapState.csvData, 'sitemap_urls.csv');
             } else {
                 resultsDiv.innerHTML += '<div class="error">No URLs extracted for CSV.</div>';
             }
 
-            state.isProcessing = false;
-            saveState();
+            sitemapState.isProcessing = false;
+            saveSitemapState();
             loader.style.display = 'none';
             document.getElementById('resumeButton').disabled = true;
         }
 
         function updateProgress(processed, total) {
+            const progressBar = document.getElementById('progressBar');
+            const progressText = document.getElementById('progressText');
+            if (!progressBar || !progressText) return;
             const percentage = total > 0 ? (processed / total) * 100 : 0;
-            document.getElementById('progressBar').style.width = `${percentage}%`;
-            document.getElementById('progressText').textContent = `${percentage.toFixed(1)}% Complete (${processed}/${total} URLs processed)`;
+            progressBar.style.width = `${percentage}%`;
+            progressText.textContent = `${percentage.toFixed(1)}% Complete (${processed}/${total} URLs processed)`;
         }
 
-        function updateResults(results) {
-            document.getElementById('results').innerHTML = results.join('');
+        function updateSitemapResults(results) {
+            const resultsDiv = document.getElementById('sitemapResults');
+            if (resultsDiv) resultsDiv.innerHTML = results ? results.join('') : '';
         }
 
-        function clearData() {
+        function clearSitemapData() {
             localStorage.removeItem('sitemapExtractorState');
-            state = {};
-            document.getElementById('sitemapUrls').value = '';
-            document.getElementById('results').innerHTML = '';
-            document.getElementById('progressBar').style.width = '0%';
-            document.getElementById('progressText').textContent = '0% Complete (0/0 URLs processed)';
-            document.getElementById('resumeButton').disabled = true;
+            sitemapState = {};
+            const elements = {
+                sitemapUrls: document.getElementById('sitemapUrls'),
+                sitemapResults: document.getElementById('sitemapResults'),
+                progressBar: document.getElementById('progressBar'),
+                progressText: document.getElementById('progressText'),
+                resumeButton: document.getElementById('resumeButton')
+            };
+            if (elements.sitemapUrls) elements.sitemapUrls.value = '';
+            if (elements.sitemapResults) elements.sitemapResults.innerHTML = '';
+            if (elements.progressBar) elements.progressBar.style.width = '0%';
+            if (elements.progressText) elements.progressText.textContent = '0% Complete (0/0 URLs processed)';
+            if (elements.resumeButton) elements.resumeButton.disabled = true;
         }
 
-        function saveState() {
-            localStorage.setItem('sitemapExtractorState', JSON.stringify(state));
-        }
-
-        function loadState() {
-            const saved = localStorage.getItem('sitemapExtractorState');
-            return saved ? JSON.parse(saved) : {};
-        }
-
-        function normalizeUrl(rawUrl) {
+        function normalizeSitemapUrl(rawUrl) {
             let url = rawUrl.trim();
-            if (!url.startsWith('http://') && !url.startsWith('https://')) {
-                url = 'https://' + url;
-            }
+            if (!url.startsWith('http://') && !url.startsWith('https://')) url = 'https://' + url;
             try {
                 const parsedUrl = new URL(url);
                 return parsedUrl.origin + (url.endsWith('/sitemap_index.xml') || url.endsWith('/sitemap.xml') ? parsedUrl.pathname : '/sitemap_index.xml');
@@ -423,40 +704,31 @@
                 try {
                     const controller = new AbortController();
                     const timeoutId = setTimeout(() => controller.abort(), timeout);
-
                     const response = await fetch(proxy + encodeURIComponent(url), {
                         signal: controller.signal,
                         headers: {
                             'Accept': 'application/xml, text/xml',
-                            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/118.0.0.0 Safari/537.36',
+                            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)',
                             'Referer': new URL(url).origin
                         }
                     });
-
                     clearTimeout(timeoutId);
-
-                    if (!response.ok) {
-                        throw new Error(`Failed to fetch: ${response.statusText} (Status: ${response.status})`);
-                    }
+                    if (!response.ok) throw new Error(`HTTP ${response.status}`);
                     return await response.text();
                 } catch (error) {
-                    if (attempt === retries) {
-                        throw error;
-                    }
-                    console.warn(`Attempt ${attempt} failed for ${url}: ${error.message}. Retrying...`);
+                    if (attempt === retries) throw error;
                     await new Promise(resolve => setTimeout(resolve, 1000));
                 }
             }
         }
 
         async function fetchSitemap(url) {
-            let lastError = null;
+            let lastError;
             for (const proxy of PROXY_URLS) {
                 try {
                     return await fetchWithRetry(url, proxy);
                 } catch (error) {
                     lastError = error;
-                    console.warn(`Proxy ${proxy} failed for ${url}: ${error.message}. Trying next proxy...`);
                 }
             }
             throw new Error(`Network error: ${lastError.message}`);
@@ -467,7 +739,6 @@
                 let sitemapResponse = await fetchSitemap(url);
                 const parser = new DOMParser();
                 let xmlDoc = parser.parseFromString(sitemapResponse, 'text/xml');
-
                 const sitemapNodes = xmlDoc.getElementsByTagName('sitemap');
                 if (sitemapNodes.length > 0) {
                     const sitemapUrls = Array.from(sitemapNodes).map(node => node.getElementsByTagName('loc')[0].textContent);
@@ -480,8 +751,7 @@
                     }
                     return allPageUrls;
                 } else {
-                    const pageUrls = Array.from(xmlDoc.getElementsByTagName('loc')).map(node => node.textContent);
-                    return pageUrls;
+                    return Array.from(xmlDoc.getElementsByTagName('loc')).map(node => node.textContent);
                 }
             } catch (error) {
                 if (url.endsWith('/sitemap_index.xml')) {
@@ -490,8 +760,7 @@
                         sitemapResponse = await fetchSitemap(fallbackUrl);
                         const parser = new DOMParser();
                         xmlDoc = parser.parseFromString(sitemapResponse, 'text/xml');
-                        const pageUrls = Array.from(xmlDoc.getElementsByTagName('loc')).map(node => node.textContent);
-                        return pageUrls;
+                        return Array.from(xmlDoc.getElementsByTagName('loc')).map(node => node.textContent);
                     } catch (fallbackError) {
                         throw new Error(`Network error: ${fallbackError.message}`);
                     }
@@ -500,16 +769,693 @@
             }
         }
 
-        function downloadCsv(data) {
-            const csvContent = data.map(row => row.map(cell => `"${cell.replace(/"/g, '""')}"`).join(',')).join('\n');
+        // Link Filter
+        let filterState = loadFilterState();
+        let allLinks = [];
+        let filteredLinks = [];
+        let currentPage = 1;
+        const linksPerPage = 20;
+        let csvHeaders = [];
+
+        function loadFilterState() {
+            try {
+                return JSON.parse(localStorage.getItem('filterState')) || {};
+            } catch (e) {
+                console.error('Error loading filter state:', e);
+                return {};
+            }
+        }
+
+        function saveFilterState() {
+            try {
+                localStorage.setItem('filterState', JSON.stringify(filterState));
+            } catch (e) {
+                console.error('Error saving filter state:', e);
+            }
+        }
+
+        function initializeLinkFilter() {
+            const elements = {
+                csvFileInput: document.getElementById('csvFile'),
+                filterKeyword: document.getElementById('filterKeyword'),
+                logicOperator: document.getElementById('logicOperator'),
+                regexToggle: document.getElementById('regexToggle'),
+                filterButton: document.getElementById('filterButton'),
+                resetButton: document.getElementById('resetButton'),
+                downloadButton: document.getElementById('downloadButton'),
+                downloadSelectedButton: document.getElementById('downloadSelectedButton'),
+                fileStatus: document.getElementById('fileStatus'),
+                resultsStatus: document.getElementById('resultsStatus'),
+                resultsTable: document.getElementById('resultsTable'),
+                columnSelector: document.getElementById('columnSelector'),
+                pagination: document.getElementById('pagination'),
+                loadingIndicator: document.getElementById('loadingIndicator')
+            };
+            if (Object.values(elements).some(el => !el)) {
+                console.error('Link Filter elements missing');
+                elements.fileStatus.textContent = 'Error: App initialization failed';
+                return false;
+            }
+
+            if (filterState.csvData) {
+                allLinks = filterState.csvData;
+                filteredLinks = filterState.filteredLinks || allLinks;
+                csvHeaders = filterState.headers || [];
+                elements.filterKeyword.value = filterState.keyword || '';
+                elements.logicOperator.value = filterState.logic || 'AND';
+                elements.regexToggle.checked = filterState.regex || false;
+                elements.fileStatus.textContent = filterState.fileStatus || 'No file selected';
+                currentPage = filterState.currentPage || 1;
+                updateColumnSelector();
+                updateFilterResults();
+            }
+
+            elements.csvFileInput.addEventListener('change', handleFileUpload);
+            elements.filterButton.addEventListener('click', applyFilter);
+            elements.resetButton.addEventListener('click', resetFilter);
+            elements.downloadButton.addEventListener('click', () => downloadFilterCSV(false));
+            elements.downloadSelectedButton.addEventListener('click', () => downloadFilterCSV(true));
+            elements.filterKeyword.addEventListener('keyup', (e) => {
+                if (e.key === 'Enter') applyFilter();
+            });
+
+            return true;
+        }
+
+        function handleFileUpload(event) {
+            const { fileStatus, loadingIndicator, downloadButton, downloadSelectedButton } = {
+                fileStatus: document.getElementById('fileStatus'),
+                loadingIndicator: document.getElementById('loadingIndicator'),
+                downloadButton: document.getElementById('downloadButton'),
+                downloadSelectedButton: document.getElementById('downloadSelectedButton')
+            };
+            if (!fileStatus || !loadingIndicator || !downloadButton || !downloadSelectedButton) return;
+
+            const file = event.target.files[0];
+            if (!file) {
+                fileStatus.textContent = 'No file selected';
+                return;
+            }
+
+            fileStatus.textContent = `Processing: ${file.name}`;
+            loadingIndicator.style.display = 'block';
+            downloadButton.disabled = true;
+            downloadSelectedButton.disabled = true;
+
+            Papa.parse(file, {
+                header: true,
+                skipEmptyLines: true,
+                complete: function(results) {
+                    loadingIndicator.style.display = 'none';
+                    if (results.meta.fields && results.data.length > 0) {
+                        csvHeaders = results.meta.fields;
+                        allLinks = results.data.map(row => {
+                            const item = {};
+                            csvHeaders.forEach(header => item[header] = row[header] || '');
+                            return item;
+                        });
+                        filteredLinks = [...allLinks];
+                        filterState = {
+                            csvData: allLinks,
+                            headers: csvHeaders,
+                            filteredLinks,
+                            selectedColumns: csvHeaders,
+                            selectedRows: [],
+                            fileStatus: `${file.name} (${allLinks.length} rows)`,
+                            keyword: '',
+                            logic: 'AND',
+                            regex: false,
+                            currentPage: 1
+                        };
+                        saveFilterState();
+                        fileStatus.textContent = filterState.fileStatus;
+                        downloadButton.disabled = false;
+                        updateColumnSelector();
+                        resetFilter();
+                    } else {
+                        fileStatus.textContent = 'Error: Invalid or empty CSV file';
+                        document.getElementById('resultsStatus').textContent = 'Please upload a valid CSV with headers';
+                        allLinks = [];
+                        filteredLinks = [];
+                        csvHeaders = [];
+                        filterState = {};
+                        saveFilterState();
+                        updateFilterResults();
+                    }
+                },
+                error: function(error) {
+                    loadingIndicator.style.display = 'none';
+                    fileStatus.textContent = `Error: ${error.message}`;
+                    document.getElementById('resultsStatus').textContent = 'Failed to process CSV file';
+                }
+            });
+        }
+
+        function updateColumnSelector() {
+            const columnSelector = document.getElementById('columnSelector');
+            if (!columnSelector) return;
+            columnSelector.innerHTML = csvHeaders.length ? '<h3>Select Columns</h3>' : '';
+            csvHeaders.forEach(header => {
+                const label = document.createElement('label');
+                const checkbox = document.createElement('input');
+                checkbox.type = 'checkbox';
+                checkbox.value = header;
+                checkbox.checked = filterState.selectedColumns ? filterState.selectedColumns.includes(header) : true;
+                checkbox.addEventListener('change', () => {
+                    filterState.selectedColumns = Array.from(columnSelector.querySelectorAll('input:checked')).map(input => input.value);
+                    saveFilterState();
+                    applyFilter();
+                });
+                label.appendChild(checkbox);
+                label.appendChild(document.createTextNode(header));
+                columnSelector.appendChild(label);
+            });
+        }
+
+        function applyFilter() {
+            const { resultsStatus, loadingIndicator, filterKeyword, logicOperator, regexToggle } = {
+                resultsStatus: document.getElementById('resultsStatus'),
+                loadingIndicator: document.getElementById('loadingIndicator'),
+                filterKeyword: document.getElementById('filterKeyword'),
+                logicOperator: document.getElementById('logicOperator'),
+                regexToggle: document.getElementById('regexToggle')
+            };
+            if (!resultsStatus || !loadingIndicator || !filterKeyword || !logicOperator || !regexToggle) return;
+
+            if (!allLinks.length) {
+                resultsStatus.textContent = 'No data to filter. Please upload a CSV file.';
+                return;
+            }
+
+            loadingIndicator.style.display = 'block';
+            setTimeout(() => {
+                const keywords = filterKeyword.value.trim().toLowerCase().split(/\s+/).filter(k => k);
+                const logic = logicOperator.value;
+                const useRegex = regexToggle.checked;
+                filterState.keyword = filterKeyword.value;
+                filterState.logic = logic;
+                filterState.regex = useRegex;
+                saveFilterState();
+
+                filteredLinks = allLinks.filter(item => {
+                    const selectedColumns = filterState.selectedColumns || csvHeaders;
+                    const values = selectedColumns.map(col => (item[col] || '').toString().toLowerCase());
+                    if (!keywords.length) return true;
+                    if (useRegex) {
+                        try {
+                            const regex = new RegExp(keywords.join('|'), 'i');
+                            return values.some(val => regex.test(val));
+                        } catch (e) {
+                            resultsStatus.textContent = 'Invalid regex pattern';
+                            return true;
+                        }
+                    }
+                    return logic === 'AND'
+                        ? keywords.every(keyword => values.some(val => val.includes(keyword)))
+                        : keywords.some(keyword => values.some(val => val.includes(keyword)));
+                });
+
+                currentPage = 1;
+                filterState.filteredLinks = filteredLinks;
+                filterState.currentPage = currentPage;
+                saveFilterState();
+                loadingIndicator.style.display = 'none';
+                updateFilterResults();
+            }, 100);
+        }
+
+        function resetFilter() {
+            const { filterKeyword, logicOperator, regexToggle } = {
+                filterKeyword: document.getElementById('filterKeyword'),
+                logicOperator: document.getElementById('logicOperator'),
+                regexToggle: document.getElementById('regexToggle')
+            };
+            if (!filterKeyword || !logicOperator || !regexToggle) return;
+
+            filterKeyword.value = '';
+            logicOperator.value = 'AND';
+            regexToggle.checked = false;
+            filteredLinks = [...allLinks];
+            filterState.keyword = '';
+            filterState.logic = 'AND';
+            filterState.regex = false;
+            filterState.filteredLinks = filteredLinks;
+            filterState.selectedColumns = csvHeaders;
+            filterState.selectedRows = [];
+            filterState.currentPage = 1;
+            saveFilterState();
+            updateColumnSelector();
+            currentPage = 1;
+            updateFilterResults();
+        }
+
+        function updateFilterResults() {
+            const { resultsStatus, resultsTable, downloadButton, downloadSelectedButton, pagination } = {
+                resultsStatus: document.getElementById('resultsStatus'),
+                resultsTable: document.getElementById('resultsTable'),
+                downloadButton: document.getElementById('downloadButton'),
+                downloadSelectedButton: document.getElementById('downloadSelectedButton'),
+                pagination: document.getElementById('pagination')
+            };
+            if (!resultsStatus || !resultsTable || !downloadButton || !downloadSelectedButton || !pagination) return;
+
+            resultsStatus.textContent = `Showing ${filteredLinks.length} rows`;
+            if (filterState.keyword && filteredLinks.length < allLinks.length) {
+                resultsStatus.textContent += ` (filtered from ${allLinks.length})`;
+            }
+
+            downloadButton.disabled = !filteredLinks.length;
+            downloadSelectedButton.disabled = !filterState.selectedRows?.length;
+
+            const thead = resultsTable.querySelector('thead tr');
+            thead.innerHTML = csvHeaders.length ? '<th><input type="checkbox" id="selectAll"></th><th>#</th>' : '<th>No data</th>';
+            const selectedColumns = filterState.selectedColumns || csvHeaders;
+            selectedColumns.forEach(col => {
+                const th = document.createElement('th');
+                th.textContent = col;
+                thead.appendChild(th);
+            });
+
+            const tbody = resultsTable.querySelector('tbody');
+            tbody.innerHTML = '';
+
+            if (!filteredLinks.length && csvHeaders.length) {
+                const row = tbody.insertRow();
+                const cell = row.insertCell();
+                cell.colSpan = selectedColumns.length + 2;
+                cell.textContent = 'No results match the filter';
+                return;
+            }
+
+            const totalPages = Math.ceil(filteredLinks.length / linksPerPage);
+            const startIdx = (currentPage - 1) * linksPerPage;
+            const endIdx = Math.min(startIdx + linksPerPage, filteredLinks.length);
+            const pageLinks = filteredLinks.slice(startIdx, endIdx);
+
+            pageLinks.forEach((item, index) => {
+                const row = tbody.insertRow();
+                const selectCell = row.insertCell();
+                const indexCell = row.insertCell();
+                const checkbox = document.createElement('input');
+                checkbox.type = 'checkbox';
+                checkbox.checked = filterState.selectedRows?.includes(startIdx + index) || false;
+                checkbox.addEventListener('change', () => {
+                    if (checkbox.checked) {
+                        filterState.selectedRows = filterState.selectedRows || [];
+                        filterState.selectedRows.push(startIdx + index);
+                    } else {
+                        filterState.selectedRows = filterState.selectedRows.filter(i => i !== (startIdx + index));
+                    }
+                    saveFilterState();
+                    downloadSelectedButton.disabled = !filterState.selectedRows.length;
+                });
+                selectCell.appendChild(checkbox);
+                indexCell.textContent = startIdx + index + 1;
+
+                selectedColumns.forEach(col => {
+                    const cell = row.insertCell();
+                    const value = item[col] || '';
+                    if (value.toString().startsWith('http')) {
+                        const link = document.createElement('a');
+                        link.href = value;
+                        link.textContent = value;
+                        link.target = '_blank';
+                        link.style.color = '#646cff';
+                        cell.appendChild(link);
+                    } else {
+                        cell.textContent = value;
+                    }
+                });
+            });
+
+            const selectAll = document.getElementById('selectAll');
+            if (selectAll) {
+                const newSelectAll = selectAll.cloneNode(true);
+                selectAll.parentNode.replaceChild(newSelectAll, selectAll);
+                newSelectAll.addEventListener('change', () => {
+                    const checkboxes = tbody.querySelectorAll('input[type="checkbox"]');
+                    filterState.selectedRows = newSelectAll.checked ? Array.from({length: endIdx - startIdx}, (_, i) => startIdx + i) : [];
+                    checkboxes.forEach(cb => cb.checked = newSelectAll.checked);
+                    saveFilterState();
+                    downloadSelectedButton.disabled = !filterState.selectedRows.length;
+                });
+            }
+
+            updatePagination(totalPages);
+        }
+
+        function downloadFilterCSV(selectedOnly) {
+            const resultsStatus = document.getElementById('resultsStatus');
+            let data = selectedOnly ? (filterState.selectedRows || []).map(idx => filteredLinks[idx]) : filteredLinks;
+            if (!data || !data.length) {
+                resultsStatus.textContent = 'No data to download';
+                return;
+            }
+
+            const csvData = data.map(item => {
+                const row = {};
+                csvHeaders.forEach(header => row[header] = item[header] || '');
+                return row;
+            });
+
+            try {
+                const csv = Papa.unparse(csvData, { header: true });
+                const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+                const link = document.createElement('a');
+                link.href = URL.createObjectURL(blob);
+                link.download = selectedOnly ? 'selected_links.csv' : `filtered_links_${new Date().toISOString().slice(0,10)}.csv`;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            } catch (e) {
+                resultsStatus.textContent = 'Error generating CSV';
+            }
+        }
+
+        function updatePagination(totalPages) {
+            const pagination = document.getElementById('pagination');
+            if (!pagination) return;
+            pagination.innerHTML = '';
+            if (totalPages <= 1) return;
+
+            const prevButton = document.createElement('button');
+            prevButton.textContent = '←';
+            prevButton.disabled = currentPage === 1;
+            prevButton.addEventListener('click', () => {
+                if (currentPage > 1) {
+                    currentPage--;
+                    filterState.currentPage = currentPage;
+                    saveFilterState();
+                    updateFilterResults();
+                }
+            });
+            pagination.appendChild(prevButton);
+
+            const maxVisiblePages = 5;
+            let startPage = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
+            let endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
+            if (endPage - startPage + 1 < maxVisiblePages) {
+                startPage = Math.max(1, endPage - maxVisiblePages + 1);
+            }
+
+            if (startPage > 1) {
+                const firstButton = document.createElement('button');
+                firstButton.textContent = '1';
+                firstButton.addEventListener('click', () => {
+                    currentPage = 1;
+                    filterState.currentPage = currentPage;
+                    saveFilterState();
+                    updateFilterResults();
+                });
+                pagination.appendChild(firstButton);
+                if (startPage > 2) {
+                    const ellipsis = document.createElement('span');
+                    ellipsis.textContent = '...';
+                    pagination.appendChild(ellipsis);
+                }
+            }
+
+            for (let i = startPage; i <= endPage; i++) {
+                const pageButton = document.createElement('button');
+                pageButton.textContent = i;
+                if (i === currentPage) pageButton.style.background = '#2d2d2d';
+                pageButton.addEventListener('click', () => {
+                    currentPage = i;
+                    filterState.currentPage = currentPage;
+                    saveFilterState();
+                    updateFilterResults();
+                });
+                pagination.appendChild(pageButton);
+            }
+
+            if (endPage < totalPages) {
+                if (endPage < totalPages - 1) {
+                    const ellipsis = document.createElement('span');
+                    ellipsis.textContent = '...';
+                    pagination.appendChild(ellipsis);
+                }
+                const lastButton = document.createElement('button');
+                lastButton.textContent = totalPages;
+                lastButton.addEventListener('click', () => {
+                    currentPage = totalPages;
+                    filterState.currentPage = currentPage;
+                    saveFilterState();
+                    updateFilterResults();
+                });
+                pagination.appendChild(lastButton);
+            }
+
+            const nextButton = document.createElement('button');
+            nextButton.textContent = '→';
+            nextButton.disabled = currentPage === totalPages;
+            nextButton.addEventListener('click', () => {
+                if (currentPage < totalPages) {
+                    currentPage++;
+                    filterState.currentPage = currentPage;
+                    saveFilterState();
+                    updateFilterResults();
+                }
+            });
+            pagination.appendChild(nextButton);
+        }
+
+        // NeoWebP Converter
+        const webpFiles = [];
+        const convertedFiles = [];
+        let zip = new JSZip();
+
+        function initializeWebpConverter() {
+            const dropZone = document.getElementById('dropZone');
+            const fileInput = document.getElementById('fileInput');
+
+            fileInput.addEventListener('change', function(e) {
+                webpFiles.push(...Array.from(e.target.files));
+                updatePreviewGrid();
+            });
+
+            dropZone.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                dropZone.classList.add('active');
+            });
+
+            dropZone.addEventListener('dragleave', () => {
+                dropZone.classList.remove('active');
+            });
+
+            dropZone.addEventListener('drop', (e) => {
+                e.preventDefault();
+                dropZone.classList.remove('active');
+                webpFiles.push(...Array.from(e.dataTransfer.files));
+                updatePreviewGrid();
+            });
+        }
+
+        async function convertAll() {
+            const zipButton = document.getElementById('zipButton');
+            const convertButton = document.getElementById('convertButton');
+            zipButton.disabled = true;
+            convertButton.disabled = true;
+            convertButton.textContent = 'Converting...';
+
+            const cards = document.querySelectorAll('.card');
+            for (let i = 0; i < webpFiles.length; i++) {
+                const card = cards[i];
+                const progressFill = card.querySelector('.progress-fill');
+                const statusDot = card.querySelector('.status-dot');
+                progressFill.style.width = '0%';
+                statusDot.classList.remove('converted');
+                await convertFile(webpFiles[i], i, progressFill, statusDot);
+            }
+
+            zipButton.disabled = false;
+            convertButton.disabled = false;
+            convertButton.textContent = '🚀 Convert All';
+        }
+
+        async function convertFile(file, index, progressFill, statusDot) {
+            return new Promise((resolve) => {
+                const img = new Image();
+                img.onload = async () => {
+                    const canvas = document.createElement('canvas');
+                    canvas.width = img.width;
+                    canvas.height = img.height;
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0);
+
+                    progressFill.style.width = '50%';
+                    canvas.toBlob(async (blob) => {
+                        const webpUrl = URL.createObjectURL(blob);
+                        const fileName = `${file.name.replace(/\.[^/.]+$/, '')}.webp`;
+                        const downloadBtn = document.getElementById(`download-${index}`);
+                        downloadBtn.href = webpUrl;
+                        downloadBtn.download = fileName;
+                        downloadBtn.style.display = 'inline-block';
+                        statusDot.classList.add('converted');
+                        convertedFiles[index] = { blob, fileName };
+                        progressFill.style.width = '100%';
+                        resolve();
+                    }, 'image/webp', 0.8);
+                };
+                img.src = URL.createObjectURL(file);
+            });
+        }
+
+        async function downloadZip() {
+            const zip = new JSZip();
+            convertedFiles.forEach((file, index) => {
+                if (file) zip.file(file.fileName, file.blob);
+            });
+            const content = await zip.generateAsync({ type: 'blob' });
+            const url = URL.createObjectURL(content);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'converted-images.zip';
+            a.click();
+        }
+
+        function updatePreviewGrid() {
+            const grid = document.getElementById('previewGrid');
+            grid.innerHTML = '';
+            webpFiles.forEach((file, index) => {
+                const card = document.createElement('div');
+                card.className = 'card';
+                card.innerHTML = `
+                    <img class="preview-img" src="${URL.createObjectURL(file)}" alt="Preview">
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 0%"></div>
+                    </div>
+                    <div class="card-footer">
+                        <div class="status">
+                            <div class="status-dot"></div>
+                            <span class="filename">${file.name}</span>
+                        </div>
+                        <a id="download-${index}" class="download-btn" style="display:none">Download</a>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        // CSV Merger
+        let csvFiles = [];
+
+        function initializeCsvMerger() {
+            const dropZone = document.getElementById('csvDropZone');
+            const fileInput = document.getElementById('csvFileInput');
+
+            fileInput.addEventListener('change', (e) => {
+                handleCsvFileSelect(e.target.files);
+            });
+
+            dropZone.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                dropZone.classList.add('active');
+            });
+
+            dropZone.addEventListener('dragleave', () => {
+                dropZone.classList.remove('active');
+            });
+
+            dropZone.addEventListener('drop', (e) => {
+                e.preventDefault();
+                dropZone.classList.remove('active');
+                handleCsvFileSelect(e.dataTransfer.files);
+            });
+        }
+
+        function handleCsvFileSelect(selectedFiles) {
+            csvFiles = [...csvFiles, ...Array.from(selectedFiles)];
+            renderCsvFileList();
+        }
+
+        function renderCsvFileList() {
+            const fileList = document.getElementById('csvFileList');
+            fileList.innerHTML = csvFiles.map((file, index) => `
+                <div class="file-item">
+                    <span>${file.name} (${formatFileSize(file.size)})</span>
+                    <button class="secondary-btn" onclick="removeCsvFile(${index})">Remove</button>
+                </div>
+            `).join('');
+        }
+
+        function removeCsvFile(index) {
+            csvFiles.splice(index, 1);
+            renderCsvFileList();
+        }
+
+        function clearCsvFiles() {
+            csvFiles = [];
+            renderCsvFileList();
+        }
+
+        async function mergeCsvFiles() {
+            if (!csvFiles.length) {
+                alert('Please select at least one CSV file');
+                return;
+            }
+
+            let mergedContent = '';
+            let headers = null;
+
+            try {
+                for (const file of csvFiles) {
+                    const text = await readCsvFile(file);
+                    const lines = text.split(/\r?\n/).filter(line => line.trim());
+                    if (!lines.length) continue;
+                    const [header, ...rows] = lines;
+                    if (!headers) {
+                        headers = header;
+                        mergedContent = header + '\r\n';
+                    }
+                    if (header !== headers) {
+                        console.warn(`Header mismatch in ${file.name}. Using first file's headers.`);
+                    }
+                    mergedContent += rows.join('\r\n') + '\r\n';
+                }
+
+                if (!mergedContent.trim()) {
+                    throw new Error('No valid CSV data found in files');
+                }
+
+                downloadCsv([mergedContent.split('\r\n').map(line => line.split(','))], `merged-${Date.now()}.csv`);
+            } catch (error) {
+                alert(`Error merging files: ${error.message}`);
+            }
+        }
+
+        function readCsvFile(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = (e) => resolve(e.target.result);
+                reader.onerror = () => reject(new Error('Failed to read file'));
+                reader.readAsText(file);
+            });
+        }
+
+        function formatFileSize(bytes) {
+            if (typeof bytes !== 'number') return '0 Bytes';
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+
+        function downloadCsv(data, filename) {
+            const csvContent = data.map(row => row.map(cell => `"${(cell || '').replace(/"/g, '""')}"`).join(',')).join('\n');
             const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
             const link = document.createElement('a');
             link.href = URL.createObjectURL(blob);
-            link.download = 'sitemap_urls.csv';
+            link.download = filename;
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
         }
+
+        // Initialize All Tools
+        initializeLinkFilter();
+        initializeWebpConverter();
+        initializeCsvMerger();
     </script>
 </body>
 </html>
